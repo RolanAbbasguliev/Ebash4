@@ -1,0 +1,38 @@
+#!/bin/bash
+
+
+source variable
+
+if [ $# -eq 0 ]; then
+  echo "No arguments supplied" 1>&2
+  exit 1
+fi 
+
+if ! [ -f $1 ]; then 
+  echo "$1 file doesn't exist" 1>&2
+  exit 1 
+fi
+
+filepath=$(realpath $1)
+
+cd $HOME
+
+if ! [ -d .trash ]; then
+  mkdir .trash
+  if ! [ -d .trash.log ]; then
+  mkdir .trash.log 
+  fi
+  else
+    true
+fi
+
+cd .trash
+
+ln $filepath $filelink
+
+rm -rf $filepath
+
+cd $HOME/.trash.log
+echo -e "$filepath\n$filelink" >> "$1$filelink" 
+
+

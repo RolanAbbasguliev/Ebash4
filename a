@@ -1,0 +1,7 @@
+#!/bin/bash 
+
+source variable
+
+for file in "$HOME/source/*" ; do
+  echo $file
+done
