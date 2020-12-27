@@ -1,0 +1,63 @@
+#!/bin/bash
+
+data=$(date "+%F")
+data_day=${data: -2}
+
+cd $HOME
+
+flag=0
+
+exist=$(find -name "Backup-*" -type d | wc -l)
+
+if [[ $exist -eq 0 ]]; then
+  mkdir "Backup-$data"
+  echo -e "Backup folder created !"
+  flag=1
+fi
+
+if [[ $flag -eq 0 ]]; then
+  for backup in *; do
+    if [[ $backup == "Backup-"* ]]; then
+      backup_day=${backup: -2}
+      difference=$((data_day - backup_day))
+      if (( "$difference" > 7 )); then
+        mkdir "Backup-$data"
+        echo -e "Backup folder created !"
+        flag=1
+        break   
+      fi
+    fi 
+  done
+fi
+
+if [[ $flag -eq 0 ]]; then
+  cd "$HOME/source"
+  for file in *; do
+  filesize=$(stat -c%s "$file")
+    for filecomp in "$HOME/Backup-$data"; do
+    filesizecomp=$(stat -c%s "$filecomp")
+      if [[ $file == $filecomp ]]; then
+        if [[ $filesize == $filesizecomp ]]; then
+          continue
+        else
+          cp "$HOME/source/$filecomp" "$HOME/Backup-$data.$data"
+          echo -e "\n==========INFO==================\n\n" >> "$HOME/backup-report"
+          echo -e "FILE NAME: Backup-$data\nDATA: $data\n" >> "$HOMR/backup-report"
+          echo -e "$filecomp.$data was created" >> "$HOME/backup-report"
+          echo "New files added to $HOME/Backup-$data"
+        fi
+      fi
+    done
+  done
+else
+  cd "$HOME/source"
+  cp * "$HOME/Backup-$data"  
+  echo -e "\n================INFO===================\n\n" >> "$HOME/backup-report"
+  echo -e "FILE NAME: Backup-$data\nDATA: $data\n" >> "$HOME/backup-report"
+  for each in *; do
+    echo -e "$each - copyed" >> "$HOME/backup-report"
+  done
+  echo -e "\n=======================================" >> "$HOME/backup-report"
+fi
+
+
