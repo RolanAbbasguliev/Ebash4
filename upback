@@ -1,0 +1,27 @@
+#!/bin/bash
+
+cd $HOME
+
+exist=$(find -name "restore" -type d | wc -l)
+if [[ $exist -eq 0 ]]; then
+  mkdir "$HOME/restore"
+fi
+
+lastBack=$(ls -trd Back* | tail -1)
+
+
+
+existbackup=$(find -name "$lastBack" -type d | wc -l)
+if [[ $exist -eq 0 ]]; then
+  echo "No $lastBack file" 1>&2 
+else
+  cd "$HOME/$lastBack" 
+
+  for file in $(ls "$HOME/$lastBack" | grep -Ev "\.[0-9]{4}-[0-9]{2}-[0-9]{2}$"); do
+  cp "$HOME/$lastBack/$file" "$HOME/restore/$file"
+  done
+  
+fi
+
+
+

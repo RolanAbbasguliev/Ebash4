@@ -2,6 +2,11 @@
 
 source variable
 
-for file in "$HOME/source/*" ; do
-  echo $file
+for file in $(find $HOME/source); do
+  file2=${file%/*}
+  file=${file##*/}
+  if [[ "$file" == " " ]]; then 
+    continue
+  fi
+  echo $file  $file2
 done
