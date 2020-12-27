@@ -15,17 +15,26 @@ else
   for backup in *; do
     if [[ $backup == "Backup-"* ]]; then
       backup_day=${backup: -2}
-      difference=$(data_day - backup_day)
-      if (( "$difference" < 7 )); then
+      difference=$((data_day - backup_day))
+      if (( "$difference" > 7 )); then
         mkdir "Backup-$data"
-        echo -e "Backup folder created !"
-        flag=1
+        echo -e "Backup folder created !b"
       fi
     fi
   done
 fi
 
+
 if (( $flag == 0 )); then
   echo "You did backup recently"
+  exit 0
+else
+  cd "$HOME/source"
+  cp * "$HOME/Backup-$data"
+  echo -e "FILE: Backup-$data\nDATA: $data\n" >> "$HOME/backup-report"
+  for each in "$HOME/source"; do
+    echo -e "$each - copyed\n" >> "$HOME/backup-report"
+  done
 fi
+
 
