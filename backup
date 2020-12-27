@@ -33,24 +33,44 @@ if [[ $flag -eq 0 ]]; then
 fi
 
 if [[ $flag -eq 0 ]]; then
-  cd "$HOME/source"
-  for file in *; do
-  filesize=$(stat -c%s "$file")
-    for filecomp in "$HOME/Backup-$data"; do
-    filesizecomp=$(stat -c%s "$filecomp")
-      if [[ $file == $filecomp ]]; then
-        if [[ $filesize == $filesizecomp ]]; then
+  echo -e "\n==========INFO==================\n\n" >> "$HOME/backup-report" 
+  echo -e "FILE NAME: Backup-$data\nDATA: $data\n" >> "$HOME/backup-report"
+  for file in $(find "$HOME/source/"); do
+    filename=${file##*/} 
+    cd "$HOME/Backup-$data"
+    existfile=$(find -name "$filename" -type f | wc -l)
+    if [[ -z "$filename" ]]; then 
+      continue  
+    fi
+    if [[ $existfile -eq 0 ]]; then
+      cp "$HOME/source/$filename" "$HOME/Backup-$data"
+       echo -e "FILE: $filename added to $HOME/Backup-$data" >> "$HOME/backup-report"
+       echo -e "FILE: $filename added to $HOME/Backup-$data"
+    fi
+ 
+    filesize=$(stat -c%s "$HOME/source/$filename")
+    for filecomp in $(find "$HOME/Backup-$data/"); do
+      filecompname=${filecomp##*/}
+      if [[ -z "$filecompname" ]]; then
+        continue
+      fi
+      filecompsize=$(stat -c%s "$HOME/Backup-$data/$filecompname")
+      if [[ "$filename" == "$filecompname" ]]; then
+        if [[ "$filesize" == "$filecompsize" ]]; then
           continue
         else
-          cp "$HOME/source/$filecomp" "$HOME/Backup-$data.$data"
-          echo -e "\n==========INFO==================\n\n" >> "$HOME/backup-report"
-          echo -e "FILE NAME: Backup-$data\nDATA: $data\n" >> "$HOMR/backup-report"
-          echo -e "$filecomp.$data was created" >> "$HOME/backup-report"
-          echo "New files added to $HOME/Backup-$data"
+          mkdir "$HOME/tmp"
+          cp "$HOME/source/$filename" "$HOME/tmp/$filecompname"
+          mv "$HOME/tmp/$filecompname" "$HOME/Backup-$data/$filecompname.$data" 
+          rm -rf "$HOME/tmp"
+      
+          echo -e "$filecompname.$data was created" >> "$HOME/backup-report"
+          echo -e "file: $filecompname.$data added to $HOME/Backup-$data\n"
         fi
       fi
     done
   done
+  echo -e "\n================================\n\n" >> "$HOME/backup-report"
 else
   cd "$HOME/source"
   cp * "$HOME/Backup-$data"  
