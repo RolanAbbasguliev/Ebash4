@@ -1,0 +1,31 @@
+#!/bin/bash
+
+data=$(date "+%F")
+data_day=${data: -2}
+
+cd $HOME
+
+flag=0
+
+if ! [[ -d "Backup-"* ]]; then
+  mkdir "Backup-$data"
+  echo -e "Backup folder created !"
+  flag=1
+else
+  for backup in *; do
+    if [[ $backup == "Backup-"* ]]; then
+      backup_day=${backup: -2}
+      difference=$(data_day - backup_day)
+      if (( "$difference" < 7 )); then
+        mkdir "Backup-$data"
+        echo -e "Backup folder created !"
+        flag=1
+      fi
+    fi
+  done
+fi
+
+if (( $flag == 0 )); then
+  echo "You did backup recently"
+fi
+
