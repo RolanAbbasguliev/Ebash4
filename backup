@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-##
 data=$(date "+%F")
 data_day=${data: -2}
 
