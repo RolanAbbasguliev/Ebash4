@@ -1,0 +1,53 @@
+#!/bin/bash 
+source variable
+
+if [ $# -eq 0 ]; then
+  echo "No arguments supplied" 1>&2
+  exit 1
+fi 
+
+filename=$1
+
+cd $HOME 
+
+if ! [ -d .trash.log ]; then
+  echo "trash.log doesn't exist" 1>&2
+  exit 1
+fi
+
+cd .trash.log
+
+for filename in *; do
+  if [[ "$filename" == *"$1"* ]]; then
+    echo -e "You want to untrash: $filename ?(y/n): \c" 
+    read -r key
+    case $key in 
+      y | yes)
+	    filepath=$(head -n 1 $filename) 
+        filelink=$(tail -n 1 $filename)
+        existpath=${filepath%/*}
+        if [[ -d $existpath ]]; then  
+          if ! [[ -f $filepath ]]; then
+		    ln "$HOME/.trash/$filelink" "$filepath"
+          else
+            echo -e "file already exist in $filepath, please rename your file: \c"
+            read -r newfilename
+            ln "$HOME/.trash/$filelink" "$existpath/$newfilename"
+          fi
+        else
+          path=${filepath##*/}
+          echo -e "There is no path $filelink anymore\n"
+          echo -e "New path: home/$path"      
+          ln "$HOME/.trash/$filelink" "$HOME/$path"
+        fi 
+        rm -rf "$HOME/.trash/$filelink" 
+        echo -e "File successfuly untrashed !\n"
+        ;; 
+      *)
+        exit 0
+        ;;
+    esac
+  else 
+    echo -e "No similar files in trash: $filename \n"  
+  fi
+done
